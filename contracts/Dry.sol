@@ -56,8 +56,8 @@ contract Dry is Ownable, Pausable {
 
     struct Payment
     {
-        uint256 createdOn;
-        uint256 endOn;
+        uint32 createdOn;
+        uint32 endOn;
         address issuer;
         uint256 lat;
         uint256 long;
@@ -100,8 +100,8 @@ contract Dry is Ownable, Pausable {
         WeatherApiCall hisOracle = new WeatherApiCall(_lat, _long);
 
         insuredAccount[farmer] = Payment({
-            createdOn : block.number,
-            endOn : (block.number.add(30)).mul(60).mul(60).div(17), // naive 30 days end bloc
+            createdOn : uint32(block.number),
+            endOn : uint32((block.number.add(30)).mul(60).mul(60).div(17)), // naive 30 days end bloc
             issuer : farmer,
             lat: _lat,
             long: _long,
