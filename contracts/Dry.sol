@@ -30,8 +30,14 @@ contract Dry is Ownable, Pausable {
     // the external connection to a trustworthy weather oracle
     address public oracle;
 
-    uint256 insuredSum;
-    uint256 premium;
+    // what the farmer will received in ETH if claim
+    uint256 public insuredSum;
+
+    // what the farmer has to pay in ETH to be covered
+    uint256 public premium;
+
+    // number of payment, use for iterating on paymentToFarmer or
+    // to tell insurer how many farmer are insured
     uint256 paymentCount;
 
     // some events the app can listen to
@@ -97,7 +103,9 @@ contract Dry is Ownable, Pausable {
         require(doesInsuranceExist(farmer) == false, "Dry insurance can only be taken once per farmer");
 
         // create a new oracle instance
-        WeatherApiCall hisOracle = new WeatherApiCall(_lat, _long);
+        WeatherApiCall hisOracle = new WeatherApiCall(farmer, _lat, _long);
+
+        hisOracle.setDry(address(this));
 
         insuredAccount[farmer] = Payment({
             createdOn : uint32(block.number),
@@ -151,6 +159,16 @@ contract Dry is Ownable, Pausable {
     function doesInsuranceExist(address farmer) public view returns (bool)
     {
         return insuredAccount[farmer].issuer != address(0);
+    }
+
+    function hasRain(address farmer) public
+    {
+        insuredAccount[farmer].daysWithoutRain = 0;
+    }
+
+    function hasNotRain(address farmer) public
+    {
+        insuredAccount[farmer].daysWithoutRain = insuredAccount[farmer].daysWithoutRain + 1;
     }
 
     /**

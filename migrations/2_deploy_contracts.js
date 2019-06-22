@@ -6,13 +6,14 @@ module.exports = async function (deployer, network, accounts) { // eslint-disabl
     if (network === '_development') return;
 
     const owner = accounts[0];
+    const farmer = accounts[1]; // wont be used later on
 
     const premium = 1; // ETH cost of insurance
     const insuredSum = 2; // ETH insured premium
     const lat = 0; // ETH insured premium
     const long = 0; // ETH insured premium
 
-    const weatherApiCall = await deployer.deploy(WeatherApiCall, lat, long, {from: owner});
+    const weatherApiCall = await deployer.deploy(WeatherApiCall, farmer, lat, long, {from: owner});
 
     const dry = await deployer.deploy(Dry, premium, insuredSum, WeatherApiCall.address, {from: owner});
 };
