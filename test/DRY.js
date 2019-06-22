@@ -27,7 +27,7 @@ contract('Dry', (accounts) => {
 
     beforeEach(async function () {
         weatherOracle = await WeatherApiCall.new({from: owner});
-        dry = await DRY.new(premium, insuredSum, weatherOracle.address, {from: owner});
+        dry = await DRY.new(insuredSum, premium, weatherOracle.address, {from: owner});
     });
 
     describe('Deploy', () => {

@@ -33,6 +33,7 @@ contract Dry is Ownable, Pausable {
     constructor(uint256 _insuredSum, uint256 _premium, address _weather) public {
         require(_insuredSum > 0, "_insuredSum must be > 0");
         require(_premium > 0, "_premium must be > 0");
+        require(_insuredSum < _premium * 3, "Ensure rentability formula");
 
         require(msg.sender != address(0), "_insurer must not be address(0)");
         require(_weather != address(0), "oracle must not be address(0)");
@@ -63,7 +64,7 @@ contract Dry is Ownable, Pausable {
      * @param _premiumAmount amount payed in eth to cover the insurance
      */
     function payPremium(uint256 _premiumAmount) payable public {
-        require(_premiumAmount == 1, "Insurance premium is 1 ETH, you need to transfer that amount");
+        require(_premiumAmount == premium, "Insurance premium not payed, you need to transfer exactly that amount");
         require(owner() != msg.sender, "Insurer can not pay the premium");
         require(insuredAccount[msg.sender] == false, "Dry insurance can only be taken once per farmer");
 
