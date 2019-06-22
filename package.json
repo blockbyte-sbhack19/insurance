@@ -1,0 +1,48 @@
+{
+  "name": "insurance",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "openzeppelin-solidity": "^2.2.0"
+  },
+  "devDependencies": {
+    "@gnosis.pm/mock-contract": "^3.0.7",
+    "bignumber.js": "^8.1.1",
+    "bn-chai": "^1.0.1",
+    "chai": "^4.2.0",
+    "chai-as-promised": "^7.1.1",
+    "chai-string": "^1.5.0",
+    "dirty-chai": "^2.0.1",
+    "eslint": "^5.15.1",
+    "eslint-config-xo": "^0.26.0",
+    "eslint-plugin-babel": "^5.3.0",
+    "eth-gas-reporter": "^0.1.12",
+    "ganache-core": "^2.5.3",
+    "jasmine": "^3.3.1",
+    "jasmine-core": "^3.3.0",
+    "jsdoc": "^3.5.5",
+    "mocha": "^6.0.2",
+    "requirejs": "^2.3.6",
+    "rimraf": "^2.6.3",
+    "solc": "^0.5.6",
+    "solidity-coverage": "^0.5.11",
+    "soltsice": "^0.11.5",
+    "truffle": "^5.0.8",
+    "truffle-test-utils": "^0.1.0",
+    "web3-provider-engine": "^14.2.0",
+    "web3-utils": "^1.0.0-beta.50",
+    "license-checker": "^25.0.1",
+    "truffle-hdwallet-provider": "^1.0.11"
+  },
+  "scripts": {
+    "compile": "truffle compile --all",
+    "migrate": "truffle migrate --reset --compile-all --network devilNet",
+    "migrate-dry": "truffle migrate --reset --compile-all --network devilNet --dry-run",
+    "migrate-verbose": "truffle migrate --reset --compile-all --verbose-rpc --network devilNet",
+    "test": "./test.sh",
+    "dev": "truffle develop",
+    "debug": "truffle debug"
+  },
+  "author": ""
+}
