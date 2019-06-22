@@ -15,16 +15,24 @@ contract Dry is Ownable, Pausable {
 
     using SafeMath for uint256;
 
+    // farmer => payment
     mapping(address => Payment) public insuredAccount;
+
+    // farmer => claim occured
     mapping(address => bool) public claimValidAccount;
 
-    mapping (address => uint) pendingWithdrawals;
+    // farmer => insured premium
+    mapping (address => uint) public pendingWithdrawals;
+
+    // payment => farmer
+    mapping (uint256 => address) public paymentToFarmer;
 
     // the external connection to a trustworthy weather oracle
-    address oracle;
+    address public oracle;
 
     uint256 insuredSum;
     uint256 premium;
+    uint256 paymentCount;
 
     /**
     * @dev insurer defined the term of the micro parametric insurance
@@ -97,18 +105,25 @@ contract Dry is Ownable, Pausable {
             oracle: hisOracle
             });
 
+        paymentCount++;
+        paymentToFarmer[paymentCount] = farmer;
+
+        cleanupExpiredPayment();
+
         emit PremiumPayed(farmer, _premiumAmount);
     }
 
     /**
     * @dev insurer can refill the wallet to cover the claims
-     */
+    * @param _amount amount payed in eth to refill the insurance
+    */
     function refill(uint256 _amount) payable public onlyOwner {
         emit InsurerFunding(msg.sender, _amount);
     }
 
     /**
-    * to avoid an obvious ren-entrancy bug, it is better to let farmer retrieve their own ETH gains (from insurance)
+    * @dev to avoid an obvious ren-entrancy bug, it is better to let farmer retrieve their own ETH gains (from insurance)
+    * @param _amount amount to be retrieved in eth by the farmer
     */
     function withdraw(uint256 _amount) public whenNotPaused returns (bool)
     {
@@ -132,5 +147,26 @@ contract Dry is Ownable, Pausable {
     function doesInsuranceExist(address farmer) public view returns (bool)
     {
         return insuredAccount[farmer].issuer != address(0);
+    }
+
+    /**
+    * @dev cleanup payment that are now outdated
+    * ETH of that payment will be kept by the insurer to cover claims (insured premiums) of other farmers
+    */
+    function cleanupExpiredPayment() private
+    {
+        uint32 currentBlock = uint32(block.number);
+        for (uint8 i = 0; i < paymentCount; i++)
+        {
+            address farmer = paymentToFarmer[i];
+
+            if (insuredAccount[farmer].endOn < currentBlock)
+            {
+                //that's an outdated payment
+                delete (insuredAccount[farmer]);
+
+                paymentCount--;
+            }
+        }
     }
 }
