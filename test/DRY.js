@@ -127,6 +127,31 @@ contract('Dry', (accounts) => {
         });
     });
 
+    describe('Insurer refill wallet to cover insured premium', () => {
+        it('should failed since farmer can not refill', async function () {
+            const pay = 100;
+
+            await utils.expectThrow(dry.refill( pay, {
+                value: pay,
+                from: farmer1,
+            }));
+        });
+
+        it('should succeed since insurrer can refill', async function () {
+            const pay = premium;
+
+            const tx = await dry.refill( pay, {
+                value: pay,
+                from: owner,
+            });
+
+            const events = await utils.getEvents(tx, 'InsurerFunding');
+            expect(events.length).to.be.equal(1);
+            expect(events[0].owner).to.be.equal(owner);
+            expect(events[0].amount).to.eq.BN(pay);
+        });
+    });
+
 
 });
 
