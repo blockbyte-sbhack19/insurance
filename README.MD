@@ -5,12 +5,13 @@ not raining for 30 days?,
 * get 2 ETH back automatically if condition are met
 
 # how it is working?
-* it use http://www.oraclize.it/ and query data from openweatherdata every day.
+* it use http://www.oraclize.it/ and query data from openweatherdata every day for every single farmer payment
 * If for more than 30 days no rains are happening, the smart contract will pay
 automatically 2 ETH to all farmer that have  pay a premium of 1 ETH before (today - 30 days)
-after 30 days pass the money will be kept by the insurer
+after 30 days pass the money will be kept by the insurer!
 
-the owner of the smart contract is the INSURER, he collect payments from farmer
+the owner of the smart contract is the INSURER, he collect payments from farmer.
+If claims is too high, insurer can use refill() method to tranfer more ETH to cover all insured premium.
 
 # How to deploy
 * install nodejs

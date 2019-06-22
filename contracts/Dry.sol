@@ -79,12 +79,14 @@ contract Dry is Ownable, Pausable {
     function payPremium(uint256 _premiumAmount, uint256 _lat, uint256 _long) payable public {
         require(_premiumAmount == premium, "Insurance premium not payed, you need to transfer exactly that amount");
 
-        address farmer = msg.sender;
+        address farmer = msg.sender; // payer is insured person
 
         require(owner() != farmer, "Insurer can not pay the premium");
         require(doesInsuranceExist(farmer) == false, "Dry insurance can only be taken once per farmer");
 
-        // msg.sender will be insured
+        // create a new oracle instance
+        WeatherApiCall hisOracle = new WeatherApiCall(_lat, _long);
+
         insuredAccount[farmer] = Payment({
             createdOn : block.number,
             endOn : (block.number.add(30)).mul(60).mul(60).div(17), // naive 30 days end bloc
@@ -92,7 +94,7 @@ contract Dry is Ownable, Pausable {
             lat: _lat,
             long: _long,
             daysWithoutRain: 0,
-            oracle: WeatherApiCall(oracle)
+            oracle: hisOracle
             });
 
         emit PremiumPayed(farmer, _premiumAmount);
