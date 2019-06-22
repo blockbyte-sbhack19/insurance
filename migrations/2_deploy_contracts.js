@@ -7,10 +7,12 @@ module.exports = async function (deployer, network, accounts) { // eslint-disabl
 
     const owner = accounts[0];
 
-    const premium = 1;
-    const insuredSum = 2;
+    const premium = 1; // ETH cost of insurance
+    const insuredSum = 2; // ETH insured premium
+    const lat = 0; // ETH insured premium
+    const long = 0; // ETH insured premium
 
-    const weatherApiCall = await deployer.deploy(WeatherApiCall, {from: owner});
+    const weatherApiCall = await deployer.deploy(WeatherApiCall, lat, long, {from: owner});
 
     const dry = await deployer.deploy(Dry, premium, insuredSum, WeatherApiCall.address, {from: owner});
 };

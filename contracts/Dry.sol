@@ -21,7 +21,7 @@ contract Dry is Ownable, Pausable {
     mapping (address => uint) pendingWithdrawals;
 
     // the external connection to a trustworthy weather oracle
-    WeatherApiCall oracle;
+    address oracle;
 
     uint256 insuredSum;
     uint256 premium;
@@ -30,17 +30,17 @@ contract Dry is Ownable, Pausable {
     * @dev insurer defined the term of the micro parametric insurance
     * @param _premium for example max 0.5 ETH
     * @param _insuredSum for example max 1.5 ETH
-    * @param _weather oracle
+    * @param _oracle oracle address
     */
-    constructor(uint256 _insuredSum, uint256 _premium, address _weather) public {
+    constructor(uint256 _insuredSum, uint256 _premium, address _oracle) public {
         require(_insuredSum > 0, "_insuredSum must be > 0");
         require(_premium > 0, "_premium must be > 0");
         require(_insuredSum < _premium * 3, "ensure rentability formula violation");
 
         require(msg.sender != address(0), "_insurer must not be address(0)");
-        require(_weather != address(0), "oracle must not be address(0)");
+        require(_oracle != address(0), "oracle must not be address(0)");
 
-        oracle = WeatherApiCall(_weather);
+        oracle = _oracle;
         insuredSum = _insuredSum;
         premium = _premium;
     }
@@ -69,6 +69,7 @@ contract Dry is Ownable, Pausable {
         uint256 lat;
         uint256 long;
         uint256 daysWithoutRain;
+        WeatherApiCall oracle;
     }
 
     /**
@@ -90,7 +91,8 @@ contract Dry is Ownable, Pausable {
             issuer : farmer,
             lat: _lat,
             long: _long,
-            daysWithoutRain: 0
+            daysWithoutRain: 0,
+            oracle: WeatherApiCall(oracle)
             });
 
         emit PremiumPayed(farmer, _premiumAmount);
