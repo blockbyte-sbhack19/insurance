@@ -69,6 +69,10 @@ contract Dry is Ownable, Pausable {
         uint256 amount
     );
 
+    event InsuranceExpired(
+        address indexed farmer
+    );
+
     struct Payment
     {
         uint256 createdOn;
@@ -166,6 +170,8 @@ contract Dry is Ownable, Pausable {
                 delete (insuredAccount[farmer]);
 
                 paymentCount--;
+
+                emit InsuranceExpired(farmer);
             }
         }
     }
