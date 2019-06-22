@@ -13,7 +13,9 @@ get 1.5 ETH back automatically if condition are met
 */
 contract Dry is Ownable, Pausable {
 
-    mapping(address => bool) public insuredAccount;
+    using SafeMath for uint256;
+
+    mapping(address => Payment) public insuredAccount;
     mapping(address => bool) public claimValidAccount;
 
     mapping (address => uint) pendingWithdrawals;
@@ -59,19 +61,39 @@ contract Dry is Ownable, Pausable {
         uint256 amount
     );
 
+    struct Payment
+    {
+        uint256 createdOn;
+        uint256 endOn;
+        address issuer;
+        uint256 lat;
+        uint256 long;
+        uint256 daysWithoutRain;
+    }
+
     /**
      * @dev farmer can pay premium here
      * @param _premiumAmount amount payed in eth to cover the insurance
      */
-    function payPremium(uint256 _premiumAmount) payable public {
+    function payPremium(uint256 _premiumAmount, uint256 _lat, uint256 _long) payable public {
         require(_premiumAmount == premium, "Insurance premium not payed, you need to transfer exactly that amount");
-        require(owner() != msg.sender, "Insurer can not pay the premium");
-        require(insuredAccount[msg.sender] == false, "Dry insurance can only be taken once per farmer");
+
+        address farmer = msg.sender;
+
+        require(owner() != farmer, "Insurer can not pay the premium");
+        require(doesInsuranceExist(farmer) == false, "Dry insurance can only be taken once per farmer");
 
         // msg.sender will be insured
-        insuredAccount[msg.sender] = true;
+        insuredAccount[farmer] = Payment({
+            createdOn : block.number,
+            endOn : (block.number.add(30)).mul(60).mul(60).div(17), // naive 30 days end bloc
+            issuer : farmer,
+            lat: _lat,
+            long: _long,
+            daysWithoutRain: 0
+            });
 
-        emit PremiumPayed(msg.sender, _premiumAmount);
+        emit PremiumPayed(farmer, _premiumAmount);
     }
 
     /**
@@ -90,7 +112,7 @@ contract Dry is Ownable, Pausable {
         require(!isOwner(), "the owner cannot withdraw ether tokens");
         address farmer = msg.sender;
 
-        require(insuredAccount[farmer] == true, "you were not insured");
+        require(doesInsuranceExist(farmer) == false, "you were not insured");
         require(claimValidAccount[farmer] == false, "your claims is not acceptable, did you pay too late (< 30 days)");
 
         uint amount = pendingWithdrawals[farmer];
@@ -99,6 +121,12 @@ contract Dry is Ownable, Pausable {
         pendingWithdrawals[farmer] = 0;
         msg.sender.transfer(amount);
         emit InsurerPayingInsuredSum(farmer, amount);
+
+        return true;
     }
 
+    function doesInsuranceExist(address farmer) public view returns (bool)
+    {
+        return insuredAccount[farmer].issuer != address(0);
+    }
 }

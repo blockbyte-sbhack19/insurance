@@ -22,6 +22,9 @@ contract('Dry', (accounts) => {
     const premium = new BN('1', 10);
     const insuredSum = new BN('2', 10);
 
+    const lat = new BN('2', 10);
+    const long = new BN('2', 10);
+
     let dry;
     let weatherOracle;
 
@@ -77,14 +80,14 @@ contract('Dry', (accounts) => {
 
     describe('Farmer paying premium', () => {
         it('should failed since Insurance premium not payed, you need to transfer exactly that amount', async function () {
-            await utils.expectThrow(dry.payPremium( 0, {
+            await utils.expectThrow(dry.payPremium( 0, lat, long, {
                 value: 0,
                 from: farmer1,
             }), 'Insurance premium not payed, you need to transfer exactly that amount');
         });
 
         it('should failed since Insurance premium not payed, you need to transfer exactly that amount', async function () {
-            await utils.expectThrow(dry.payPremium( 0, {
+            await utils.expectThrow(dry.payPremium( 0, lat, long, {
                 value: 0,
                 from: farmer1,
             }), 'Insurance premium not payed, you need to transfer exactly that amount');
@@ -93,7 +96,7 @@ contract('Dry', (accounts) => {
         it('should failed since Insurer can not pay the premium', async function () {
             const pay = 1;
 
-            await utils.expectThrow(dry.payPremium( pay, {
+            await utils.expectThrow(dry.payPremium( pay, lat, long, {
                 value: pay,
                 from: owner,
             }), 'Insurer can not pay the premium');
@@ -102,11 +105,11 @@ contract('Dry', (accounts) => {
         it('should failed since farmer can not pay twice the premium', async function () {
             const pay = 1;
 
-            await dry.payPremium( pay, {
+            await dry.payPremium( pay, lat, long, {
                 value: pay,
                 from: farmer1,
             });
-            await utils.expectThrow(dry.payPremium( pay, {
+            await utils.expectThrow(dry.payPremium( pay, lat, long, {
                 value: pay,
                 from: farmer1,
             }), 'Dry insurance can only be taken once per farmer');
@@ -115,7 +118,7 @@ contract('Dry', (accounts) => {
         it('should succeed since farmer did pay right amount once', async function () {
             const pay = premium;
 
-            const tx = await dry.payPremium( pay, {
+            const tx = await dry.payPremium( pay, lat, long, {
                 value: pay,
                 from: farmer1,
             });
@@ -137,7 +140,7 @@ contract('Dry', (accounts) => {
             }));
         });
 
-        it('should succeed since insurrer can refill', async function () {
+        it('should succeed since insurer can refill', async function () {
             const pay = premium;
 
             const tx = await dry.refill( pay, {
