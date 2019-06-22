@@ -33,7 +33,7 @@ contract Dry is Ownable, Pausable {
     constructor(uint256 _insuredSum, uint256 _premium, address _weather) public {
         require(_insuredSum > 0, "_insuredSum must be > 0");
         require(_premium > 0, "_premium must be > 0");
-        require(_insuredSum < _premium * 3, "Ensure rentability formula");
+        require(_insuredSum < _premium * 3, "ensure rentability formula violation");
 
         require(msg.sender != address(0), "_insurer must not be address(0)");
         require(_weather != address(0), "oracle must not be address(0)");
@@ -46,17 +46,17 @@ contract Dry is Ownable, Pausable {
     // some events the app can listen to
     event PremiumPayed(
         address indexed farmer,
-        uint256 _currentamount
+        uint256 amount
     );
 
     event InsurerFunding(
         address indexed owner,
-        uint256 _amount
+        uint256 amount
     );
 
     event InsurerPayingInsuredSum(
         address indexed farmer,
-        uint256 _amount
+        uint256 amount
     );
 
     /**

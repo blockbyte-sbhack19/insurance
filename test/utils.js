@@ -62,29 +62,6 @@ const expect = chai.expect;
     }
 }
 
- async function expectAssetUpdateEvent(tx, expectedAssetId, expectedEventId) {
-    const events = await getEvents(tx, 'AssetUpdate');
-
-    expect(events.length).to.be.equal(1);
-    expect(events[0]._assetId).to.eq.BN(expectedAssetId.toString());
-    expect(events[0]._eventId).to.be.equal(expectedEventId);
-}
-
- async function expectErrorOccurredEvent(tx, expectedEventId) {
-    const events = await getEvents(tx, 'ErrorOccurred');
-
-    expect(events.length).to.be.equal(1);
-    expect(events[0]._errorCode).to.be.equal(expectedEventId);
-}
-
- async function expectAccountUpdateEvent(tx, accountId, currentamount, previousamount) {
-    const events = await getEvents(tx, 'AccountUpdate');
-
-    expect(events.length).to.be.equal(1);
-    expect(events[0]._accountId).to.be.equal(accountId);
-    expect(events[0]._currentamount).to.eq.BN(currentamount);
-    expect(events[0]._previousamount).to.eq.BN(previousamount);
-}
 
 async function expectThrow(promise, message) {
     try {
@@ -111,9 +88,6 @@ async function expectThrow(promise, message) {
 };
 
 module.exports = {
-    expectAccountUpdateEvent,
-    expectErrorOccurredEvent,
-    expectAssetUpdateEvent,
     getEvents,
     expectThrow,
     logEvents,

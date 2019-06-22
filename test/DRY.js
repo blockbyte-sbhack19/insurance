@@ -31,14 +31,102 @@ contract('Dry', (accounts) => {
     });
 
     describe('Deploy', () => {
-        xit('should failed if insurer is 0x0', async function () {
-            await utils.expectThrow(DRY.new(premium, insuredSum, weatherOracle.address, {from: constants.ZERO_ADDRESS}),
-                "_insurer must not be address(0)");
+        it('should succeed to deploy', async function () {
+            dry = await DRY.new(insuredSum, premium, weatherOracle.address, {from: owner});
         });
 
+        it('should failed if insuredSum is 0', async function () {
+            // arrange
+            const insuredSum = 0;
 
+            // act + assert
+            await utils.expectThrow(DRY.new(insuredSum, premium, weatherOracle.address, {from: owner}),
+                "_insuredSum must be > 0");
+        });
 
+        it('should failed if insuredSum is 0', async function () {
+            // arrange
+            const insuredSum = 1;
+            const premium = 0;
+
+            // act + assert
+            await utils.expectThrow(DRY.new(insuredSum, premium, weatherOracle.address, {from: owner}),
+                "_premium must be > 0");
+        });
+
+        it('should failed if product not rentable', async function () {
+            // arrange
+            const insuredSum = 4;
+            const premium = 1;
+
+            // act + assert
+            await utils.expectThrow(DRY.new(insuredSum, premium, weatherOracle.address, {from: owner}),
+                "ensure rentability formula violation");
+        });
+
+        it('should failed if oracle not set', async function () {
+            // arrange
+            const insuredSum = 1;
+            const premium = 2;
+
+            // act + assert
+            await utils.expectThrow(DRY.new(insuredSum, premium, constants.ZERO_ADDRESS, {from: owner}),
+                "oracle must not be address(0)");
+        });
     });
+
+    describe('Farmer paying premium', () => {
+        it('should failed since Insurance premium not payed, you need to transfer exactly that amount', async function () {
+            await utils.expectThrow(dry.payPremium( 0, {
+                value: 0,
+                from: farmer1,
+            }), 'Insurance premium not payed, you need to transfer exactly that amount');
+        });
+
+        it('should failed since Insurance premium not payed, you need to transfer exactly that amount', async function () {
+            await utils.expectThrow(dry.payPremium( 0, {
+                value: 0,
+                from: farmer1,
+            }), 'Insurance premium not payed, you need to transfer exactly that amount');
+        });
+
+        it('should failed since Insurer can not pay the premium', async function () {
+            const pay = 1;
+
+            await utils.expectThrow(dry.payPremium( pay, {
+                value: pay,
+                from: owner,
+            }), 'Insurer can not pay the premium');
+        });
+
+        it('should failed since farmer can not pay twice the premium', async function () {
+            const pay = 1;
+
+            await dry.payPremium( pay, {
+                value: pay,
+                from: farmer1,
+            });
+            await utils.expectThrow(dry.payPremium( pay, {
+                value: pay,
+                from: farmer1,
+            }), 'Dry insurance can only be taken once per farmer');
+        });
+
+        it('should succeed since farmer did pay right amount once', async function () {
+            const pay = premium;
+
+            const tx = await dry.payPremium( pay, {
+                value: pay,
+                from: farmer1,
+            });
+
+            const events = await utils.getEvents(tx, 'PremiumPayed');
+            expect(events.length).to.be.equal(1);
+            expect(events[0].farmer).to.be.equal(farmer1);
+            expect(events[0].amount).to.eq.BN(pay);
+        });
+    });
+
 
 });
 
