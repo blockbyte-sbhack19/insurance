@@ -30,8 +30,9 @@ after 60 days pass the money will be kept by the insurer!
 The smart contract emit events that the mobile app or the backend can listen to
 * `PremiumPayed(farmer, amount)` a farmer has paid his premium
 * `InsurerFunding(amount)`       the insurer is adding some ETH to better cover claims cost
-* `InsurerPayingInsuredSum(farmer, amount)` the insurer is paying the insured premium to farmer
-* `InsuranceExpired(farmer)`              farmer lose its premium, after 30 days without claims
+* `InsurerPayingInsuredSum(farmer, amount)` the insurer will be paying the insured premium to farmer
+* `InsurerPayedInsuredSum(farmer, amount)` the insurer has payed the insured premium to farmer or better farmer has witdrawn his insured premium
+* `InsuranceExpired(farmer)`              farmer lose its premium, after 60 days without claims
 
 # How to deploy
 * install nodejs
