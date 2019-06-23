@@ -1,10 +1,12 @@
 # DRY micro parametric insurance in lendIt
 
-This piece of solidity code is deployed on ropsten at 0x0000000000000
+This insurance product is deployed on Ethereum Ropsten (Testnet)
+*  Dry at https://ropsten.etherscan.io/address/0x9ec90cec0cb4bafd5d97e3efd83c05e9c96aad15
+*  WeatherApiCall at https://ropsten.etherscan.io/address/0xC64Bb3D5F7cb8b6aaBA2E2694272cEA99642ce6D
 
-## Insurer: 
+## Insurer:
 * account private key is 80B779D5FEC4155CF43B91A8206C2DEDA7F774CF93BEA24F24BA32EB319D533F, has 1 ETH to deploy
-* cover the cost of Oracle daily query
+* Cover the cost of Oracle daily query
 * if claims are too high, insurer can use `refill()` method to tranfer more ETH to cover all insured premium.
 
 ## Farmer
@@ -13,7 +15,7 @@ Farmer insure the case where their parcel see no rain for 30 days,
 * farmer get 2 ETH back automatically if following conditions are met:
  * it is not raining on his parcel during 30 days
  * after 60 days (it rain regurlaly, at least every 29 days), then the insurance contract is stopped, and money left get to the insurer
- 
+
 ## Smart Contract
 * collect payments from farmers.
 * the owner of the smart contract is the Insurer
