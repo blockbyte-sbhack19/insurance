@@ -22,11 +22,17 @@ Farmer insure the case where their parcel see no rain for 30 days,
 * history of who is insured, how many payment are collected is maintained on chain.
 
 # how it is working?
+
+## oracle
 * Getting data from an outside source onto the blockchain is a non-trivial problem, and one solution is to use Oraclize ( http://www.oraclize.it/) to query data from openweatherdata every day for every single farmer payment & parcel
+* Dry send a query to Oraclize API call. Once they get a result from the API, they call a function named __callback in Dry smart contract and pass it the result as an input.
+
+## Business logic
 * If for more than 30 days no rains are happening, the smart contract will pay
 automatically 2 ETH to all farmer that have  pay a premium of 1 ETH before (today - 30 days)
 after 60 days pass the money will be kept by the insurer!
 
+## anybody can check transparently what is happening
 The smart contract emit events that the mobile app or the backend can listen to
 * `PremiumPayed(farmer, amount)` a farmer has paid his premium
 * `InsurerFunding(amount)`       the insurer is adding some ETH to better cover claims cost
