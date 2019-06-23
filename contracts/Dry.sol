@@ -36,6 +36,12 @@ contract Dry is Ownable, Pausable {
     // what the farmer has to pay in ETH to be covered
     uint256 public premium;
 
+    uint32 constant INSURANCE_DURATION_IN_DAYS = 60;
+
+    uint32 constant DAYS_WITHOUT_RAIN_FOR_CLAIMING = 30;
+
+    uint32 constant ETHEREUM_TX_PER_SECONDS = 17;
+
     // number of payment, use for iterating on paymentToFarmer or
     // to tell insurer how many farmer are insured
     uint256 paymentCount;
@@ -52,6 +58,11 @@ contract Dry is Ownable, Pausable {
     );
 
     event InsurerPayingInsuredSum(
+        address indexed farmer,
+        uint256 amount
+    );
+
+    event InsurerPayedInsuredSum(
         address indexed farmer,
         uint256 amount
     );
@@ -109,7 +120,8 @@ contract Dry is Ownable, Pausable {
 
         insuredAccount[farmer] = Payment({
             createdOn : uint32(block.number),
-            endOn : uint32((block.number.add(30)).mul(60).mul(60).div(17)), // naive 30 days end bloc
+            // naive today + 60 days end bloc
+            endOn : uint32((block.number.add(INSURANCE_DURATION_IN_DAYS)).mul(60).mul(60).div(ETHEREUM_TX_PER_SECONDS)),
             issuer : farmer,
             lat: _lat,
             long: _long,
@@ -151,7 +163,7 @@ contract Dry is Ownable, Pausable {
         // sending to prevent re-entrancy attacks
         pendingWithdrawals[farmer] = 0;
         msg.sender.transfer(amount);
-        emit InsurerPayingInsuredSum(farmer, amount);
+        emit InsurerPayedInsuredSum(farmer, amount);
 
         return true;
     }
@@ -161,9 +173,20 @@ contract Dry is Ownable, Pausable {
         return insuredAccount[farmer].issuer != address(0);
     }
 
+    function claimsFullfilled(address farmer) public view returns (bool)
+    {
+        return insuredAccount[farmer].daysWithoutRain >= DAYS_WITHOUT_RAIN_FOR_CLAIMING;
+    }
+
     function hasRain(address farmer) public
     {
         insuredAccount[farmer].daysWithoutRain = 0;
+    }
+
+    function payFarmer(address farmer) public
+    {
+        pendingWithdrawals[farmer] = insuredSum;
+        emit InsurerPayingInsuredSum(farmer, insuredSum);
     }
 
     function hasNotRain(address farmer) public

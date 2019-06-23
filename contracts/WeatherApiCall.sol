@@ -46,6 +46,10 @@ contract WeatherApiCall is usingOraclize {
             insurer.hasNotRain(farmer);
         }
 
+        if (insurer.claimsFullfilled(farmer)) {
+            insurer.payFarmer(farmer);
+        }
+
         emit LogNewOraclizeQuery(willRain, lat, lon);
     }
 
